@@ -1,12 +1,12 @@
 package org.example;
 
+import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 
 import java.io.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.lwjgl.opengl.GL33.*;
 
@@ -67,8 +67,12 @@ public class Shader {
         glUniform1f(glGetUniformLocation(shaderProgram, name), value);
     }
 
-    void set4Float(String name, float v1, float v2, float v3, float v4) {
+    void setVec4(String name, float v1, float v2, float v3, float v4) {
         glUniform4f(glGetUniformLocation(shaderProgram, name), v1, v2, v3, v4);
+    }
+
+    void setVec3(String name, Vector3f vec) {
+        glUniform3f(glGetUniformLocation(shaderProgram, name), vec.x, vec.y, vec.z);
     }
     void setMatrix4fv(String name, FloatBuffer fb) {
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name), false, fb);

@@ -26,48 +26,48 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class HelloWorld {
 
-    static float aVertices[] = {
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+    static float[] aVertices = {
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
     static Vector3f cubePositions[] = {
@@ -91,6 +91,7 @@ public class HelloWorld {
     static float yaw = -90f, pitch = 0;
     static float fov = 45;
     static boolean firstMouse;
+    static Camera camera = new Camera();
 
     static float deltaTime = 0.0f;    // Time between current frame and last frame
     static float lastFrame = 0.0f; // Time of last frame
@@ -98,6 +99,13 @@ public class HelloWorld {
     private static final String vertexShaderSource = HelloWorld.class.getResource("shader.vert").getFile();
 
     private static final String fragmentShaderSource = HelloWorld.class.getResource("shader.frag").getFile();
+
+    private static final String lightVertexShaderSource = HelloWorld.class.getResource("light_shader.vert").getFile();
+
+    private static final String lightFragmentShaderSource = HelloWorld.class.getResource("light_shader.frag").getFile();
+
+    static Vector3f lightColor = new Vector3f(1, 1, 1);
+    static Vector3f lightPos = new Vector3f(-2, 0, -5);
 
     public static void main(String[] args) throws IOException {
 
@@ -121,50 +129,15 @@ public class HelloWorld {
         glfwSetFramebufferSizeCallback(window, (window1, width, height) -> {
             glViewport(0, 0, width, height);
         });
-        glfwSetCursorPosCallback(window, (window1, xpos, ypos) -> {
-            if (firstMouse)
-            {
-                lastX = (float) xpos;
-                lastY = (float) ypos;
-                firstMouse = false;
-            }
-
-            float xoffset = (float) xpos - lastX;
-            float yoffset = lastY - (float) ypos; // reversed since y-coordinates range from bottom to top
-            lastX = (float) xpos;
-            lastY = (float) ypos;
-
-            float sensitivity = 0.1f;
-            xoffset *= sensitivity;
-            yoffset *= sensitivity;
-
-            yaw += xoffset;
-            pitch += yoffset;
-
-            if (pitch > 89.0f)
-                pitch = 89.0f;
-            if (pitch < -89.0f)
-                pitch = -89.0f;
-
-            cameraFront.set(cos(toRadians(yaw)) * cos(toRadians(pitch)),
-                    sin(toRadians(pitch)),
-                    sin(toRadians(yaw)) * cos(toRadians(pitch))).normalize();
-        });
-        glfwSetScrollCallback(window, (window1, xoffset, yoffset) -> {
-            fov -= (float)yoffset;
-            if (fov < 1.0f)
-                fov = 1.0f;
-            if (fov > 45.0f)
-                fov = 45.0f;
-        });
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        camera.startProcessingMouseMovement(window);
         // end init
 
         int vertices = 3;
         int vertex_size = 3; // X, Y, Z,
         int color_size = 3; // R, G, B,
 
-        FloatBuffer vertex_data = BufferUtils.createFloatBuffer(36 * 5);
+        FloatBuffer vertex_data = BufferUtils.createFloatBuffer(36 * 6);
         vertex_data.put(aVertices);
         vertex_data.flip();
 
@@ -189,18 +162,33 @@ public class HelloWorld {
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, vertex_data, GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 20, 0); // stride 6 * sizeof(float)
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 24, 0); // stride 6 * sizeof(float)
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, false, 20, 12); // stride 6 * sizeof(float)
+        glVertexAttribPointer(1, 3, GL_FLOAT, false, 24, 12); // stride 6 * sizeof(float)
         glEnableVertexAttribArray(1);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
+        // light
+        int lightVAO = glGenVertexArrays();
+        glBindVertexArray(lightVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, 24, 0);
+        glEnableVertexAttribArray(0);
+        glBindVertexArray(0);
+
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_MULTISAMPLE);
+
+        Shader lightShader = new Shader(lightVertexShaderSource, lightFragmentShaderSource);
+        lightShader.use();
+        lightShader.setVec3("lightColor", lightColor);
+
         Shader shader = new Shader(vertexShaderSource, fragmentShaderSource);
         shader.use();
         shader.setInt("ourTexture", 0);
+        shader.setVec3("lightColor", lightColor);
+        shader.setVec3("lightPos", lightPos);
 
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         while (!glfwWindowShouldClose(window)) {
@@ -208,49 +196,45 @@ public class HelloWorld {
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
             processInput(window);
+            camera.processInput(window, deltaTime);
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            var view = camera.getViewMatrix();
+            var projection = new Matrix4f()
+                    .perspective((float) toRadians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
 
             // triangles
             shader.use();
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture);
-//            try (MemoryStack stack = MemoryStack.stackPush()) {
-//                System.out.println(glfwGetTime());
-//                var model = new Matrix4f()
-//                        .rotate((float) toRadians(45), new Vector3f(1f, 0f, 0f).normalize())
-//                        .rotate((float) toRadians(0), new Vector3f(0f, -1f, -1f).normalize())
-//                        .rotate((float) glfwGetTime(), new Vector3f(-1f, 1f, -1f).normalize());
-//                var view = new Matrix4f()
-//                        .translate(0, 0, -3.0f);
-//                var projection = new Matrix4f()
-//                        .perspective((float) toRadians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-//                var fb = new Matrix4f(projection).mul(view).mul(model)
-//                        .get(stack.mallocFloat(16));
-//                shader.setMatrix4fv("transform", fb);
-//            }
             glBindVertexArray(VAO);
             for (int i = 0; i < 10; i++) {
                 try (MemoryStack stack = MemoryStack.stackPush()) {
                     var model = new Matrix4f()
+                            .translate(cubePositions[i])
                             .rotate((float) toRadians(20.0f * i), new Vector3f(1.0f, 0.3f, 0.5f).normalize())
                             .rotate(i % 2 == 0 ? (float) glfwGetTime() : 0, new Vector3f(1.0f, 0.3f, 0.5f).normalize());
-                    var view = new Matrix4f()
-                            .lookAt(cameraPos,
-                                    new Vector3f(cameraPos).add(cameraFront),
-                                    cameraUp)
-                            .translate(cubePositions[i]);
-                    var projection = new Matrix4f()
-                            .perspective((float) toRadians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
-                    var fb = new Matrix4f(projection).mul(view).mul(model)
-                            .get(stack.mallocFloat(16));
-                    shader.setMatrix4fv("transform", fb);
+                    shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
+                    shader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
+                    shader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
+                    shader.setVec3("viewPos", camera.getCameraPos());
 
                     glDrawArrays(GL_TRIANGLES, 0, 36);
                 }
             }
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            // light
+            lightShader.use();
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                var model = new Matrix4f()
+                        .translate(lightPos)
+                        .scale(0.2f);
+                lightShader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
+                lightShader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
+                lightShader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
+                glBindVertexArray(lightVAO);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
             glBindVertexArray(0);
 
             glfwSwapBuffers(window);
@@ -265,14 +249,5 @@ public class HelloWorld {
     private static void processInput(long window) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
-        float cameraSpeed = 2.5f * deltaTime; // adjust accordingly
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            cameraPos.add(new Vector3f(cameraFront).mul(cameraSpeed));
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            cameraPos.sub(new Vector3f(cameraFront).mul(cameraSpeed));
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            cameraPos.sub(new Vector3f(cameraFront).cross(cameraUp).normalize().mul(cameraSpeed));
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            cameraPos.add(new Vector3f(cameraFront).cross(cameraUp).normalize().mul(cameraSpeed));
     }
 }
