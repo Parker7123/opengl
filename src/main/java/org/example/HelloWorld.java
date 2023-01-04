@@ -87,7 +87,12 @@ public class HelloWorld {
     static Vector3f cameraUp = new Vector3f(0, 1, 0);
     static Vector3f cameraFront = new Vector3f(0, 0, -1);
 
-    static float deltaTime = 0.0f;	// Time between current frame and last frame
+    static float lastX = 400, lastY = 300;
+    static float yaw = -90f, pitch = 0;
+    static float fov = 45;
+    static boolean firstMouse;
+
+    static float deltaTime = 0.0f;    // Time between current frame and last frame
     static float lastFrame = 0.0f; // Time of last frame
 
     private static final String vertexShaderSource = HelloWorld.class.getResource("shader.vert").getFile();
@@ -102,6 +107,7 @@ public class HelloWorld {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_SAMPLES, 4);
 
         long window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
         if (window == NULL) {
@@ -115,6 +121,43 @@ public class HelloWorld {
         glfwSetFramebufferSizeCallback(window, (window1, width, height) -> {
             glViewport(0, 0, width, height);
         });
+        glfwSetCursorPosCallback(window, (window1, xpos, ypos) -> {
+            if (firstMouse)
+            {
+                lastX = (float) xpos;
+                lastY = (float) ypos;
+                firstMouse = false;
+            }
+
+            float xoffset = (float) xpos - lastX;
+            float yoffset = lastY - (float) ypos; // reversed since y-coordinates range from bottom to top
+            lastX = (float) xpos;
+            lastY = (float) ypos;
+
+            float sensitivity = 0.1f;
+            xoffset *= sensitivity;
+            yoffset *= sensitivity;
+
+            yaw += xoffset;
+            pitch += yoffset;
+
+            if (pitch > 89.0f)
+                pitch = 89.0f;
+            if (pitch < -89.0f)
+                pitch = -89.0f;
+
+            cameraFront.set(cos(toRadians(yaw)) * cos(toRadians(pitch)),
+                    sin(toRadians(pitch)),
+                    sin(toRadians(yaw)) * cos(toRadians(pitch))).normalize();
+        });
+        glfwSetScrollCallback(window, (window1, xoffset, yoffset) -> {
+            fov -= (float)yoffset;
+            if (fov < 1.0f)
+                fov = 1.0f;
+            if (fov > 45.0f)
+                fov = 45.0f;
+        });
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         // end init
 
         int vertices = 3;
@@ -154,7 +197,7 @@ public class HelloWorld {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
         glEnable(GL_DEPTH_TEST);
-
+        glEnable(GL_MULTISAMPLE);
         Shader shader = new Shader(vertexShaderSource, fragmentShaderSource);
         shader.use();
         shader.setInt("ourTexture", 0);
@@ -188,19 +231,18 @@ public class HelloWorld {
 //                shader.setMatrix4fv("transform", fb);
 //            }
             glBindVertexArray(VAO);
-            for(int i = 0; i < 10; i++)
-            {
+            for (int i = 0; i < 10; i++) {
                 try (MemoryStack stack = MemoryStack.stackPush()) {
                     var model = new Matrix4f()
-                            .rotate( (float) toRadians(20.0f * i), new Vector3f(1.0f, 0.3f, 0.5f).normalize())
-                            .rotate(i%2==0 ? (float) glfwGetTime() : 0, new Vector3f(1.0f, 0.3f, 0.5f).normalize());
+                            .rotate((float) toRadians(20.0f * i), new Vector3f(1.0f, 0.3f, 0.5f).normalize())
+                            .rotate(i % 2 == 0 ? (float) glfwGetTime() : 0, new Vector3f(1.0f, 0.3f, 0.5f).normalize());
                     var view = new Matrix4f()
                             .lookAt(cameraPos,
                                     new Vector3f(cameraPos).add(cameraFront),
                                     cameraUp)
                             .translate(cubePositions[i]);
                     var projection = new Matrix4f()
-                            .perspective((float) toRadians(55.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+                            .perspective((float) toRadians(fov), 800.0f / 600.0f, 0.1f, 100.0f);
                     var fb = new Matrix4f(projection).mul(view).mul(model)
                             .get(stack.mallocFloat(16));
                     shader.setMatrix4fv("transform", fb);
