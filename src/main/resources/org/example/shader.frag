@@ -11,7 +11,10 @@ struct Material {
 };
 
 struct Light {
-    vec3 position;
+    vec3  position;
+    vec3  direction;
+    float cutOff;
+    float outerCutOff;
 
     vec3 ambient;
     vec3 diffuse;
@@ -44,6 +47,13 @@ void main()
     vec3 reflectDir = reflect(-lightDir, normalize(normal));
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
+
+    // spotlight
+    float theta     = dot(lightDir, normalize(-light.direction));
+    float epsilon   = light.cutOff - light.outerCutOff;
+    float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
+    diffuse  *= intensity;
+    specular *= intensity;
 
     // result color
     ambient  *= attenuation;

@@ -221,6 +221,10 @@ public class HelloWorld {
                     shader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
                     shader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
                     shader.setVec3("viewPos", camera.getCameraPos());
+                    shader.setVec3("light.position",  camera.getCameraPos());
+                    shader.setVec3("light.direction", camera.getCameraFront());
+                    shader.setFloat("light.cutOff",   (float) cos(toRadians(12)));
+                    shader.setFloat("light.outerCutOff",   (float) cos(toRadians(17.5)));
 
                     glDrawArrays(GL_TRIANGLES, 0, 36);
                 }

@@ -20,10 +20,6 @@ public class Camera {
     private float mouseSensitivity = 0.1f;
     private boolean firstMouse = true;
 
-    public float getFov() {
-        return fov;
-    }
-
     public Camera(Vector3f cameraPos, Vector3f cameraUp, Vector3f cameraFront,
                   float lastX, float lastY, float yaw, float pitch, float fov, float movementSpeed, float mouseSensitivity) {
         this.cameraPos = cameraPos;
@@ -47,6 +43,14 @@ public class Camera {
     public Matrix4f getViewMatrix() {
         return new Matrix4f()
                 .lookAt(cameraPos, new Vector3f(cameraPos).add(cameraFront), cameraUp);
+    }
+
+    public Vector3f getCameraFront() {
+        return cameraFront;
+    }
+
+    public float getFov() {
+        return fov;
     }
 
     public void processInput(long window, float deltaTime) {
