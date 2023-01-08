@@ -57,24 +57,24 @@ public class Shader {
         glUseProgram(shaderProgram);
     }
     // utility uniform functions
-    void setBool(String name, Boolean value) {
+    public void setBool(String name, Boolean value) {
         glUniform1i(glGetUniformLocation(shaderProgram, name), value.compareTo(false));
     }
-    void setInt(String name, int value) {
+    public void setInt(String name, int value) {
         glUniform1i(glGetUniformLocation(shaderProgram, name), value);
     }
-    void setFloat(String name, float value) {
+    public void setFloat(String name, float value) {
         glUniform1f(glGetUniformLocation(shaderProgram, name), value);
     }
 
-    void setVec4(String name, float v1, float v2, float v3, float v4) {
+    public void setVec4(String name, float v1, float v2, float v3, float v4) {
         glUniform4f(glGetUniformLocation(shaderProgram, name), v1, v2, v3, v4);
     }
 
-    void setVec3(String name, Vector3f vec) {
+    public void setVec3(String name, Vector3f vec) {
         glUniform3f(glGetUniformLocation(shaderProgram, name), vec.x, vec.y, vec.z);
     }
-    void setMatrix4fv(String name, FloatBuffer fb) {
+    public void setMatrix4fv(String name, FloatBuffer fb) {
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, name), false, fb);
     }
 }

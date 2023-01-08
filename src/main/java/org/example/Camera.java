@@ -16,7 +16,7 @@ public class Camera {
     private float lastX = 400, lastY = 300;
     private float yaw = -90f, pitch = 0;
     private float fov = 45;
-    private float movementSpeed = 2.5f;
+    private float movementSpeed = 1f;
     private float mouseSensitivity = 0.1f;
     private boolean firstMouse = true;
 

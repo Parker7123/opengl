@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.models.Model;
 import org.joml.Matrix4f;
 import org.joml.SimplexNoise;
 import org.joml.Vector3f;
@@ -189,6 +190,7 @@ public class HelloWorld {
         shader.setFloat("light.constant",  1.0f);
         shader.setFloat("light.linear",    0.045f);
         shader.setFloat("light.quadratic", 0.0075f);
+        Model backpack = new Model(HelloWorld.class.getResource("Jordan191.obj").getPath());
 
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         while (!glfwWindowShouldClose(window)) {
@@ -206,28 +208,20 @@ public class HelloWorld {
 
             // triangles
             shader.use();
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture);
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, specularMap);
-            glBindVertexArray(VAO);
-            for (int i = 0; i < 10; i++) {
-                try (MemoryStack stack = MemoryStack.stackPush()) {
-                    var model = new Matrix4f()
-                            .translate(cubePositions[i])
-                            .rotate((float) toRadians(20.0f * i), new Vector3f(1.0f, 0.3f, 0.5f).normalize())
-                            .rotate(i % 2 == 0 ? (float) glfwGetTime() : 0, new Vector3f(1.0f, 0.3f, 0.5f).normalize());
-                    shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
-                    shader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
-                    shader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
-                    shader.setVec3("viewPos", camera.getCameraPos());
-                    shader.setVec3("light.position",  camera.getCameraPos());
-                    shader.setVec3("light.direction", camera.getCameraFront());
-                    shader.setFloat("light.cutOff",   (float) cos(toRadians(12)));
-                    shader.setFloat("light.outerCutOff",   (float) cos(toRadians(17.5)));
 
-                    glDrawArrays(GL_TRIANGLES, 0, 36);
-                }
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                var model = new Matrix4f()
+                        .rotate((float) toRadians(-90f), new Vector3f(1f, 0f, 0f));
+                shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
+                shader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
+                shader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
+                shader.setVec3("viewPos", camera.getCameraPos());
+                shader.setVec3("light.position",  camera.getCameraPos());
+                shader.setVec3("light.direction", camera.getCameraFront());
+                shader.setFloat("light.cutOff",   (float) cos(toRadians(12)));
+                shader.setFloat("light.outerCutOff",   (float) cos(toRadians(17.5)));
+
+                backpack.draw(shader);
             }
             // light
             lightShader.use();
