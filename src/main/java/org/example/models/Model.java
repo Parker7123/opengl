@@ -1,14 +1,21 @@
 package org.example.models;
 
+import org.example.HelloWorld;
 import org.example.Shader;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.assimp.*;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL30.glGenerateMipmap;
+import static org.lwjgl.stb.STBImage.*;
 
 public class Model {
 
@@ -90,7 +97,15 @@ public class Model {
                 System.out.println("material index 0, textures not loaded");
                 return new Mesh(vertices, indices, textures, Material.DEFAULT_MATERIAL);
             }
-            List<Texture> diffuseMaps = loadMaterialTextures(material, Assimp.aiTextureType_DIFFUSE, "texture_diffuse");
+            for (int i = 0; i < 18; i++) {
+                List<Texture> diffuseMaps = loadMaterialTextures(material, Assimp.aiTextureType_NONE + i, "texture_diffuse");
+                if(diffuseMaps.size() > 0) System.out.println("a");
+            }
+            List<Texture> diffuseMaps = loadMaterialTextures(material, Assimp.aiTextureType_DIFFUSE_ROUGHNESS, "texture_diffuse");
+            List<Texture> specularMaps = loadMaterialTextures(material, Assimp.aiTextureType_UNKNOWN, "texture_specular");
+            System.out.println(diffuseMaps.size());
+            textures.addAll(diffuseMaps);
+            textures.addAll(specularMaps);
             return new Mesh(vertices, indices, textures, loadMaterial(material));
         }
         return new Mesh(vertices, indices, textures, Material.DEFAULT_MATERIAL);
@@ -115,14 +130,37 @@ public class Model {
                     null, null, null);
             int textureId = loadTextureFromFile(aiString.dataString(), directory);
             Texture texture = new Texture(textureId, typeName);
+            textures.add(texture);
         }
-        return null;
+        return textures;
     }
 
     private int loadTextureFromFile(String s, String directory) {
-        System.out.println(s);
-        System.out.println(directory);
-        return 0;
+        String fileName = s.substring(s.indexOf('/') + 1, s.length());
+        String path = "textures/" + fileName;
+        return loadTexture(path);
+    }
+
+    private static int loadTexture(String path) {
+        int[] w = new int[1];
+        int[] h = new int[1];
+        int[] components = new int[1];
+//        stbi_set_flip_vertically_on_load(true);
+        String imagePath = new File(HelloWorld.class.getResource(path).getPath()).toString();
+        ByteBuffer image = stbi_load(imagePath, w, h, components, 0);
+        int format = GL_RGB;
+        if(components[0] == 4) format = GL_RGBA;
+        if(components[0] == 1) format = GL_BACK;
+        int texture = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w[0], h[0], 0, format, GL_UNSIGNED_BYTE, image);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        stbi_image_free(image);
+        return texture;
     }
 
     public void draw(Shader shader) {

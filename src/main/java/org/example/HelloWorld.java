@@ -107,7 +107,7 @@ public class HelloWorld {
     private static final String lightFragmentShaderSource = HelloWorld.class.getResource("light_shader.frag").getFile();
 
     static Vector3f lightColor = new Vector3f(1, 1, 1);
-    static Vector3f lightPos = new Vector3f(-2, 0, -5);
+    static Vector3f lightPos = new Vector3f(-2, 1, -5);
 
     public static void main(String[] args) throws IOException {
 
@@ -144,8 +144,8 @@ public class HelloWorld {
         vertex_data.flip();
 
         // texsture
-        int texture = loadTexture("og.jpg");
-        int specularMap = loadTexture("og_specular.jpg");
+//        int texture = loadTexture("og.jpg");
+//        int specularMap = loadTexture("og_specular.jpg");
         int VAO = glGenVertexArrays();
         int VBO = glGenBuffers();
         glBindVertexArray(VAO);
@@ -190,7 +190,7 @@ public class HelloWorld {
         shader.setFloat("light.constant",  1.0f);
         shader.setFloat("light.linear",    0.045f);
         shader.setFloat("light.quadratic", 0.0075f);
-        Model backpack = new Model(HelloWorld.class.getResource("Jordan191.obj").getPath());
+        Model backpack = new Model(HelloWorld.class.getResource("crircuito.obj").getPath());
 
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         while (!glfwWindowShouldClose(window)) {
@@ -211,7 +211,8 @@ public class HelloWorld {
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 var model = new Matrix4f()
-                        .rotate((float) toRadians(-90f), new Vector3f(1f, 0f, 0f));
+//                        .scale(0.01f)
+                        .rotate((float) toRadians(0f), new Vector3f(1f, 0f, 0f));
                 shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
                 shader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
                 shader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
