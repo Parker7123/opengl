@@ -192,6 +192,7 @@ public class HelloWorld {
         shader.setInt("useTexture", 0);
         Model backpack = new Model(HelloWorld.class.getResource("luigi.obj").getPath());
         Model track = new Model(HelloWorld.class.getResource("crircuito.obj").getPath());
+        Model car = new Model(HelloWorld.class.getResource("RacingCar.obj").getPath());
 
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         while (!glfwWindowShouldClose(window)) {
@@ -231,6 +232,13 @@ public class HelloWorld {
                 shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
                 shader.setInt("useTexture", 1);
                 backpack.draw(shader);
+
+                // car
+                model = new Matrix4f()
+                        .scale(0.01f);
+                shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
+                shader.setInt("useTexture", 1);
+                car.draw(shader);
             }
             // light
             lightShader.use();
