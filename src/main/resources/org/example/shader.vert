@@ -15,6 +15,10 @@ void main()
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
     // move to cpu since inversions are costly
     normal = mat3(transpose(inverse(model))) * aNormal;
+    // fixes wrongly generated normals on plain ground
+    if (normal == vec3(0.0f, -1.0f, 0.0f)) {
+        normal = vec3(0, 1, 0);
+    }
     fragPos = vec3(model * vec4(aPos, 1.0f));
     TexCoords = aTexCoords;
 }

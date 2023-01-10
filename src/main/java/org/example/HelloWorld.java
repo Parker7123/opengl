@@ -180,7 +180,6 @@ public class HelloWorld {
         shader.use();
         shader.setInt("material.diffuse", 0);
         shader.setInt("material.specular", 1);
-        shader.setFloat("material.shininess", 51.2f);
 
         shader.setVec3("light.position", lightPos);
         shader.setVec3("light.ambient", new Vector3f(0.2f, 0.2f, 0.2f));
@@ -190,7 +189,9 @@ public class HelloWorld {
         shader.setFloat("light.constant",  1.0f);
         shader.setFloat("light.linear",    0.045f);
         shader.setFloat("light.quadratic", 0.0075f);
-        Model backpack = new Model(HelloWorld.class.getResource("crircuito.obj").getPath());
+        shader.setInt("useTexture", 0);
+        Model backpack = new Model(HelloWorld.class.getResource("luigi.obj").getPath());
+        Model track = new Model(HelloWorld.class.getResource("crircuito.obj").getPath());
 
 //        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         while (!glfwWindowShouldClose(window)) {
@@ -219,9 +220,16 @@ public class HelloWorld {
                 shader.setVec3("viewPos", camera.getCameraPos());
                 shader.setVec3("light.position",  camera.getCameraPos());
                 shader.setVec3("light.direction", camera.getCameraFront());
-                shader.setFloat("light.cutOff",   (float) cos(toRadians(12)));
+                shader.setFloat("light.cutOff",   (float) cos(toRadians(10)));
                 shader.setFloat("light.outerCutOff",   (float) cos(toRadians(17.5)));
-
+                shader.setInt("useTexture", 0);
+                track.draw(shader);
+                model = new Matrix4f()
+                        .translate(new Vector3f((float) cos(glfwGetTime()) - 3, 0.1f, (float) sin(glfwGetTime()) + 3))
+                        .rotate((float) glfwGetTime(), new Vector3f(0f, 1f, 0f))
+                        .scale(0.01f);
+                shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
+                shader.setInt("useTexture", 1);
                 backpack.draw(shader);
             }
             // light

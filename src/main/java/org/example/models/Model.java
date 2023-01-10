@@ -28,7 +28,8 @@ public class Model {
     private void loadModel(String path) {
         path = new File(path).toPath().toString();
         System.out.println(path);
-        AIScene scene = Assimp.aiImportFile(path, Assimp.aiProcess_Triangulate | Assimp.aiProcess_FlipUVs);
+        AIScene scene = Assimp.aiImportFile(path, Assimp.aiProcess_Triangulate | Assimp.aiProcess_FlipUVs |
+                Assimp.aiProcess_FixInfacingNormals | Assimp.aiProcess_ForceGenNormals);
         if (scene == null || (scene.mFlags() & Assimp.AI_SCENE_FLAGS_INCOMPLETE) != 0 || scene.mRootNode() == null) {
             System.out.println("error loading model " + path);
             System.out.println(Assimp.aiGetErrorString());
@@ -97,13 +98,8 @@ public class Model {
                 System.out.println("material index 0, textures not loaded");
                 return new Mesh(vertices, indices, textures, Material.DEFAULT_MATERIAL);
             }
-            for (int i = 0; i < 18; i++) {
-                List<Texture> diffuseMaps = loadMaterialTextures(material, Assimp.aiTextureType_NONE + i, "texture_diffuse");
-                if(diffuseMaps.size() > 0) System.out.println("a");
-            }
-            List<Texture> diffuseMaps = loadMaterialTextures(material, Assimp.aiTextureType_DIFFUSE_ROUGHNESS, "texture_diffuse");
+            List<Texture> diffuseMaps = loadMaterialTextures(material, Assimp.aiTextureType_DIFFUSE, "texture_diffuse");
             List<Texture> specularMaps = loadMaterialTextures(material, Assimp.aiTextureType_UNKNOWN, "texture_specular");
-            System.out.println(diffuseMaps.size());
             textures.addAll(diffuseMaps);
             textures.addAll(specularMaps);
             return new Mesh(vertices, indices, textures, loadMaterial(material));
@@ -146,6 +142,7 @@ public class Model {
         int[] h = new int[1];
         int[] components = new int[1];
 //        stbi_set_flip_vertically_on_load(true);
+        System.out.println("loading " + path);
         String imagePath = new File(HelloWorld.class.getResource(path).getPath()).toString();
         ByteBuffer image = stbi_load(imagePath, w, h, components, 0);
         int format = GL_RGB;

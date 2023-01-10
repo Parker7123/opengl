@@ -78,7 +78,7 @@ public class Mesh {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesLoader.loadToIntBuffer(), GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, Vertex.NUMBER_OF_FLOATS * 4, 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, true, Vertex.NUMBER_OF_FLOATS * 4, 0);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, false, Vertex.NUMBER_OF_FLOATS * 4, 3 * 4);
         glEnableVertexAttribArray(1);
