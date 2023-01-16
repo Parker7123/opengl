@@ -9,17 +9,18 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
 
 public class Camera {
-    private Vector3f cameraPos = new Vector3f(0, 0, 3);
+    //9,128E+0  3,766E-1
+
+    private Vector3f cameraPos = new Vector3f(9.128f, 0.3766f,  1.732f);
     private Vector3f cameraUp = new Vector3f(0, 1, 0);
     private Vector3f cameraFront = new Vector3f(0, 0, -1);
-
     private float lastX = 400, lastY = 300;
+
     private float yaw = -90f, pitch = 0;
     private float fov = 45;
     private float movementSpeed = 2.5f;
     private float mouseSensitivity = 0.1f;
     private boolean firstMouse = true;
-
     public Camera(Vector3f cameraPos, Vector3f cameraUp, Vector3f cameraFront,
                   float lastX, float lastY, float yaw, float pitch, float fov, float movementSpeed, float mouseSensitivity) {
         this.cameraPos = cameraPos;
@@ -38,6 +39,14 @@ public class Camera {
 
     public Vector3f getCameraPos() {
         return cameraPos;
+    }
+
+    public void setCameraPos(Vector3f cameraPos) {
+        this.cameraPos = cameraPos;
+    }
+
+    public void setCameraFront(Vector3f cameraFront) {
+        this.cameraFront = cameraFront;
     }
 
     public Matrix4f getViewMatrix() {

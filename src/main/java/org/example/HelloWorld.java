@@ -1,25 +1,25 @@
 package org.example;
 
+import org.example.models.CameraMovementType;
 import org.example.models.Model;
 import org.joml.Matrix4f;
-import org.joml.SimplexNoise;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
+import java.nio.file.Files;
+import java.util.List;
 
 import static java.lang.Math.*;
+import static org.example.models.CameraMovementType.*;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.glfw.GLFW.glfwGetTime;
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.stb.STBImage.stbi_load;
 import static org.lwjgl.stb.STBImage.stbi_set_flip_vertically_on_load;
@@ -108,6 +108,7 @@ public class HelloWorld {
 
     static Vector3f lightColor = new Vector3f(1, 1, 1);
     static Vector3f lightPos = new Vector3f(-2, 1, -5);
+    private static CameraMovementType cameraMovementType = CameraMovementType.STATIC;
 
     public static void main(String[] args) throws IOException {
 
@@ -119,7 +120,7 @@ public class HelloWorld {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_SAMPLES, 4);
 
-        long window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+        long window = glfwCreateWindow(1920, 1080, "LearnOpenGL", NULL, NULL);
         if (window == NULL) {
             System.out.println("Failed to create GLFW window");
             glfwTerminate();
@@ -127,12 +128,12 @@ public class HelloWorld {
         }
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
-        glViewport(0, 0, 800, 600);
+        glViewport(0, 0, 1920, 1080);
         glfwSetFramebufferSizeCallback(window, (window1, width, height) -> {
             glViewport(0, 0, width, height);
         });
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        camera.startProcessingMouseMovement(window);
+//        camera.startProcessingMouseMovement(window);
         // end init
 
         int vertices = 3;
@@ -194,26 +195,57 @@ public class HelloWorld {
         Model track = new Model(HelloWorld.class.getResource("crircuito.obj").getPath());
         Model car = new Model(HelloWorld.class.getResource("RacingCar.obj").getPath());
 
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        File positionFile = new File("position.txt");
+        List<Vector3f[]> positions = Files.readAllLines(new File(HelloWorld.class.getResource("position.txt").getPath()).toPath()).stream()
+                .map(line -> line.split(" "))
+                .map(l-> new Vector3f[] {
+                        new Vector3f(Float.parseFloat(l[0]), Float.parseFloat(l[1]), Float.parseFloat(l[2])),
+                        new Vector3f(Float.parseFloat(l[3]), Float.parseFloat(l[4]), Float.parseFloat(l[5]))
+                })
+                .toList();
+        int frame = 0;
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        var carFront = new Vector2f(0f, -1f).normalize();
         while (!glfwWindowShouldClose(window)) {
+            frame++;
             float currentFrame = (float) glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
+
+            // carPos
+            var tFront = positions.get(frame % positions.size())[1];
+            var nextCarFront = new Vector2f(tFront.x, tFront.z).normalize();
+            var carPos = positions.get(frame % positions.size())[0];
+            var carPosGround = new Vector3f(carPos.x, 0.048f, carPos.z);
+
+            // camera movement
             processInput(window);
-            camera.processInput(window, deltaTime);
+            if (cameraMovementType.equals(FPV)) {
+                camera.setCameraPos(new Vector3f(0f,0.3f,0f).add(carPosGround));
+                camera.setCameraFront(new Vector3f(nextCarFront.x, 0f , nextCarFront.y));
+            } else if (cameraMovementType.equals(FOLLOW)) {
+                camera.setCameraPos(new Vector3f(0f,0.5f,0f)
+                        .add(new Vector3f(-nextCarFront.x * 3, 0f , -nextCarFront.y * 3))
+                        .add(carPosGround));
+                camera.setCameraFront(new Vector3f(nextCarFront.x, 0f , nextCarFront.y));
+//                camera.processInput(window, deltaTime);
+            }
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             var view = camera.getViewMatrix();
             var projection = new Matrix4f()
-                    .perspective((float) toRadians(camera.getFov()), 800.0f / 600.0f, 0.1f, 100.0f);
+                    .perspective((float) toRadians(camera.getFov()), 1920.0f / 1080.0f, 0.1f, 100.0f);
 
             // triangles
             shader.use();
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
+                System.out.println(camera.getCameraPos());
+                System.out.println(glfwGetTime());
+                var cameraPos = camera.getCameraPos();
+                var cameraFront = camera.getCameraFront();
                 var model = new Matrix4f()
-//                        .scale(0.01f)
                         .rotate((float) toRadians(0f), new Vector3f(1f, 0f, 0f));
                 shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
                 shader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
@@ -235,7 +267,9 @@ public class HelloWorld {
 
                 // car
                 model = new Matrix4f()
-                        .scale(0.01f);
+                        .translate(carPosGround)
+                        .rotate(new Vector2f(nextCarFront).angle(carFront), new Vector3f(0f, 1f, 0f))
+                        .scale(0.002f);
                 shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
                 shader.setInt("useTexture", 1);
                 car.draw(shader);
@@ -257,7 +291,7 @@ public class HelloWorld {
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
-
+//        fileWriter.close();
         glDeleteVertexArrays(VAO);
         glDeleteBuffers(VBO);
         glfwTerminate();
@@ -285,6 +319,15 @@ public class HelloWorld {
     }
 
     private static void processInput(long window) {
+        if(glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+            cameraMovementType = STATIC;
+            camera.setCameraPos(new Vector3f(-13.186f, 30.337f, 1.486f));
+            camera.setCameraFront( new Vector3f(0.38f, -0.99f, 0f).normalize());
+        } else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+            cameraMovementType = FOLLOW;
+        } else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
+            cameraMovementType = FPV;
+        }
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
     }
