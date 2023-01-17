@@ -1,5 +1,8 @@
 package org.example;
 
+import org.example.lights.DirectionalLight;
+import org.example.lights.PointLight;
+import org.example.lights.SpotLight;
 import org.example.models.CameraMovementType;
 import org.example.models.Model;
 import org.joml.Matrix4f;
@@ -15,6 +18,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.*;
@@ -26,75 +30,7 @@ import static org.lwjgl.stb.STBImage.stbi_set_flip_vertically_on_load;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class HelloWorld {
-
-    static float[] aVertices = {
-            // positions          // normals           // texture coords
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
-
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   1.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,   0.0f, 0.0f,
-
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 1.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 1.0f
-    };
-
-    static Vector3f cubePositions[] = {
-            new Vector3f(0.0f, 0.0f, 0.0f),
-            new Vector3f(2.0f, 5.0f, -15.0f),
-            new Vector3f(-1.5f, -2.2f, -2.5f),
-            new Vector3f(-3.8f, -2.0f, -12.3f),
-            new Vector3f(2.4f, -0.4f, -3.5f),
-            new Vector3f(-1.7f, 3.0f, -7.5f),
-            new Vector3f(1.3f, -2.0f, -2.5f),
-            new Vector3f(1.5f, 2.0f, -2.5f),
-            new Vector3f(1.5f, 0.2f, -1.5f),
-            new Vector3f(-1.3f, 1.0f, -1.5f)
-    };
-
-    static Vector3f cameraPos = new Vector3f(0, 0, 3);
-    static Vector3f cameraUp = new Vector3f(0, 1, 0);
-    static Vector3f cameraFront = new Vector3f(0, 0, -1);
-
-    static float lastX = 400, lastY = 300;
-    static float yaw = -90f, pitch = 0;
-    static float fov = 45;
-    static boolean firstMouse;
     static Camera camera = new Camera();
-
     static float deltaTime = 0.0f;    // Time between current frame and last frame
     static float lastFrame = 0.0f; // Time of last frame
 
@@ -106,9 +42,11 @@ public class HelloWorld {
 
     private static final String lightFragmentShaderSource = HelloWorld.class.getResource("light_shader.frag").getFile();
 
-    static Vector3f lightColor = new Vector3f(1, 1, 1);
-    static Vector3f lightPos = new Vector3f(-2, 1, -5);
-    private static CameraMovementType cameraMovementType = CameraMovementType.STATIC;
+    private static final List<PointLight> pointLights = new ArrayList<>();
+    private static final List<SpotLight> spotLights = new ArrayList<>();
+    private static final int NR_POINT_LIGHTS = 1;
+    private static final int NR_SPOT_LIGHTS = 1;
+    private static CameraMovementType cameraMovementType = FOLLOW;
 
     public static void main(String[] args) throws IOException {
 
@@ -134,62 +72,53 @@ public class HelloWorld {
         });
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 //        camera.startProcessingMouseMovement(window);
-        // end init
-
-        int vertices = 3;
-        int vertex_size = 3; // X, Y, Z,
-        int color_size = 3; // R, G, B,
-
-        FloatBuffer vertex_data = BufferUtils.createFloatBuffer(36 * 8);
-        vertex_data.put(aVertices);
-        vertex_data.flip();
-
-        // texsture
-//        int texture = loadTexture("og.jpg");
-//        int specularMap = loadTexture("og_specular.jpg");
-        int VAO = glGenVertexArrays();
-        int VBO = glGenBuffers();
-        glBindVertexArray(VAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertex_data, GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 32, 0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 32, 12);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, false, 32, 24);
-        glEnableVertexAttribArray(2);
-
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
-        // light
-        int lightVAO = glGenVertexArrays();
-        glBindVertexArray(lightVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, 32, 0);
-        glEnableVertexAttribArray(0);
-        glBindVertexArray(0);
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_MULTISAMPLE);
 
-        Shader lightShader = new Shader(lightVertexShaderSource, lightFragmentShaderSource);
-        lightShader.use();
-        lightShader.setVec3("lightColor", lightColor);
 
+        // initial shader and light configuration
+        Shader lightShader = new Shader(lightVertexShaderSource, lightFragmentShaderSource);
         Shader shader = new Shader(vertexShaderSource, fragmentShaderSource);
         shader.use();
-        shader.setInt("material.diffuse", 0);
-        shader.setInt("material.specular", 1);
 
-        shader.setVec3("light.position", lightPos);
-        shader.setVec3("light.ambient", new Vector3f(0.2f, 0.2f, 0.2f));
-        shader.setVec3("light.diffuse", new Vector3f(0.8f, 0.8f, 0.8f));
-        shader.setVec3("light.specular", new Vector3f(1f, 1f, 1f));
+        DirectionalLight directionalLight = DirectionalLight.builder()
+                .direction(new Vector3f(0, -1f, 0))
+                .ambient(new Vector3f(0.15f, 0.15f, 0.15f))
+                .diffuse(new Vector3f(0.15f, 0.15f, 0.15f))
+                .specular(new Vector3f(0.15f, 0.15f, 0.15f))
+                .build();
 
-        shader.setFloat("light.constant",  1.0f);
-        shader.setFloat("light.linear",    0.045f);
-        shader.setFloat("light.quadratic", 0.0075f);
+        directionalLight.applyUniforms(shader);
+        //  PointLights
+        PointLight pointLight = PointLight.builder()
+                .index(0)
+                .position(new Vector3f(-2, 1, -5))
+                .ambient(new Vector3f(0.15f, 0.15f, 0.15f))
+                .diffuse(new Vector3f(0.25f, 0.25f, 0.25f))
+                .specular(new Vector3f(0.3f, 0.53f, 0.3f))
+                .constant(1.0f)
+                .linear(0.045f)
+                .quadratic(0.0075f)
+                .build();
+        pointLight.init();
+        pointLights.add(pointLight);
+        // SpotLights
+        SpotLight spotLight = SpotLight.builder()
+                .index(0)
+                .position(new Vector3f(-10, 1, -5))
+                .direction(new Vector3f(0, -1f, 0))
+                .ambient(new Vector3f(0.15f, 0.15f, 0.15f))
+                .diffuse(new Vector3f(0.3f, 0.3f, 0.3f))
+                .specular(new Vector3f(0.3f, 0.53f, 0.3f))
+                .constant(1.0f)
+                .linear(0.045f)
+                .quadratic(0.0075f)
+                .cutOff((float) cos(toRadians(10)))
+                .outerCutOff((float) cos(toRadians(17)))
+                .build();
+        spotLights.add(spotLight);
+
         shader.setInt("useTexture", 0);
         Model backpack = new Model(HelloWorld.class.getResource("luigi.obj").getPath());
         Model track = new Model(HelloWorld.class.getResource("crircuito.obj").getPath());
@@ -206,6 +135,7 @@ public class HelloWorld {
         int frame = 0;
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         var carFront = new Vector2f(0f, -1f).normalize();
+
         while (!glfwWindowShouldClose(window)) {
             frame++;
             float currentFrame = (float) glfwGetTime();
@@ -241,20 +171,18 @@ public class HelloWorld {
             shader.use();
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                System.out.println(camera.getCameraPos());
-                System.out.println(glfwGetTime());
-                var cameraPos = camera.getCameraPos();
-                var cameraFront = camera.getCameraFront();
                 var model = new Matrix4f()
                         .rotate((float) toRadians(0f), new Vector3f(1f, 0f, 0f));
                 shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
                 shader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
                 shader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
                 shader.setVec3("viewPos", camera.getCameraPos());
-                shader.setVec3("light.position",  camera.getCameraPos());
-                shader.setVec3("light.direction", camera.getCameraFront());
-                shader.setFloat("light.cutOff",   (float) cos(toRadians(10)));
-                shader.setFloat("light.outerCutOff",   (float) cos(toRadians(17.5)));
+                spotLights.forEach(light -> {
+                    light.setDirection(new Vector3f(nextCarFront.x, 0, nextCarFront.y));
+                    light.setPosition(carPosGround);
+                    light.applyUniforms(shader);
+                });
+                pointLights.forEach(light -> light.applyUniforms(shader));
                 shader.setInt("useTexture", 0);
                 track.draw(shader);
                 model = new Matrix4f()
@@ -277,45 +205,15 @@ public class HelloWorld {
             // light
             lightShader.use();
             try (MemoryStack stack = MemoryStack.stackPush()) {
-                var model = new Matrix4f()
-                        .translate(lightPos)
-                        .scale(0.2f);
-                lightShader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
                 lightShader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
                 lightShader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
-                glBindVertexArray(lightVAO);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
+                pointLights.get(0).draw(lightShader);
             }
-            glBindVertexArray(0);
 
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
-//        fileWriter.close();
-        glDeleteVertexArrays(VAO);
-        glDeleteBuffers(VBO);
         glfwTerminate();
-    }
-
-    private static int loadTexture(String path) {
-        int[] w = new int[1];
-        int[] h = new int[1];
-        int[] components = new int[1];
-        stbi_set_flip_vertically_on_load(true);
-        String imagePath = new File(HelloWorld.class.getResource(path).getPath()).toString();
-        ByteBuffer image = stbi_load(imagePath, w, h, components, 0);
-        int format = GL_RGB;
-        if(components[0] == 4) format = GL_RGBA;
-        System.out.println(components[0]);
-        int texture = glGenTextures();
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w[0], h[0], 0, format, GL_UNSIGNED_BYTE, image);
-        glGenerateMipmap(GL_TEXTURE_2D);
-        return texture;
     }
 
     private static void processInput(long window) {
