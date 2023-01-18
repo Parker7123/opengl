@@ -3,12 +3,14 @@ out vec4 fragColor;
 in vec3 fragPos;
 in vec3 normal;
 in vec2 TexCoords;
+in vec4 eyeSpacePosition;
 
 struct Material {
     sampler2D texture_diffuse1;
     sampler2D specular;
     vec3 diffuseColor;
 };
+uniform Material material;
 
 struct DirLight {
     vec3 direction;
@@ -48,13 +50,21 @@ struct SpotLight {
 };
 #define NR_SPOT_LIGHTS 2
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
-uniform Material material;
+
+struct FogParameters
+{
+    vec3 color;
+    float density;
+};
+uniform FogParameters fogParameters;
+
 uniform vec3 viewPos;
 uniform int useTexture;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir, vec3 diffuseColor);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 diffuseColor);
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec3 diffuseColor);
+float getFogFactor(FogParameters params, float fogCoordinate);
 
 void main()
 {
@@ -71,6 +81,9 @@ void main()
     // phase 3: Spot lights
     for(int i = 0; i < NR_SPOT_LIGHTS; i++)
         result += CalcSpotLight(spotLights[i], norm, fragPos, viewDir, diffuseColor);
+    // fog
+    float fogCoordinate = abs(eyeSpacePosition.z / eyeSpacePosition.w);
+    result = mix(result, fogParameters.color, getFogFactor(fogParameters, fogCoordinate));
 
     fragColor = vec4(result, 1.0);
 }
@@ -121,7 +134,8 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     // attenuation
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
+    float attenuation = 1.0 / (light.constant + light.linear * distance +
+    light.quadratic * (distance * distance));
     // spotlight intensity
     float theta = dot(lightDir, normalize(-light.direction));
     float epsilon = light.cutOff - light.outerCutOff;
@@ -134,4 +148,12 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir, vec
     diffuse *= attenuation * intensity;
     specular *= attenuation * intensity;
     return (ambient + diffuse + specular);
+}
+
+float getFogFactor(FogParameters params, float fogCoordinate)
+{
+    float result = 0.0;
+    result = exp(-params.density * fogCoordinate);
+    result = 1.0 - clamp(result, 0.0, 1.0);
+    return result;
 }

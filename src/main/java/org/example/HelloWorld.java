@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.fog.Fog;
 import org.example.lights.DirectionalLight;
 import org.example.lights.PointLight;
 import org.example.lights.SpotLight;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.*;
@@ -33,6 +35,7 @@ public class HelloWorld {
     static float deltaTime = 0.0f;    // Time between current frame and last frame
     static float lastTime = 0.0f; // Time of last frame
     static float spotLightRotation = -5f;
+    static float fogFactor = 0f;
     static Vector3f worldUp = new Vector3f(0, 1, 0);
 
     private static final String phongVertexShaderSource = HelloWorld.class.getResource("shaders/phong_shader.vert").getFile();
@@ -48,6 +51,7 @@ public class HelloWorld {
     private static final List<PointLight> pointLights = new ArrayList<>();
     private static final List<SpotLight> spotLights = new ArrayList<>();
     private static final List<DirectionalLight> directionalLights = new ArrayList<>();
+    private static final Vector3f directionalLightColor = new Vector3f(0.15f, 0.15f, 0.15f);
     private static CameraMovementType cameraMovementType = FOLLOW;
     private static ShaderType shaderType = PHONG;
 
@@ -83,6 +87,9 @@ public class HelloWorld {
         Shader gouraudShader = new Shader(gouraudVertexShaderSource, gouraudFragmentShaderSource);
         Shader flatShader = new Shader(flatVertexShaderSource, flatFragmentShaderSource);
         setupLights();
+        Fog fog = Fog.builder()
+                .color(directionalLightColor)
+                .build();
 
         Model luigi = new Model(HelloWorld.class.getResource("luigi.obj").getPath());
         Model track = new Model(HelloWorld.class.getResource("crircuito.obj").getPath());
@@ -148,6 +155,8 @@ public class HelloWorld {
                 default -> phongShader;
             };
             currentShader.use();
+            fog.setDensity(fogFactor);
+            fog.applyFog(currentShader);
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 // spotlights
@@ -213,9 +222,9 @@ public class HelloWorld {
         Model lamp = new Model(HelloWorld.class.getResource("street_lamp_02.obj").getPath());
         DirectionalLight directionalLight = DirectionalLight.builder()
                 .direction(new Vector3f(0, -1f, 0))
-                .ambient(new Vector3f(0.1f, 0.1f, 0.1f))
-                .diffuse(new Vector3f(0.1f, 0.1f, 0.1f))
-                .specular(new Vector3f(0.1f, 0.1f, 0.1f))
+                .ambient(directionalLightColor)
+                .diffuse(directionalLightColor)
+                .specular(directionalLightColor)
                 .build();
         directionalLights.add(directionalLight);
         //  PointLights
@@ -233,12 +242,12 @@ public class HelloWorld {
                     .model(lamp)
                     .modelPosition(position)
                     .lightPosition(new Vector3f(0, 1.35f, 0).add(position))
-                    .ambient(new Vector3f(0.05f, 0.05f, 0.05f))
+                    .ambient(new Vector3f(0.005f, 0.005f, 0.005f))
                     .diffuse(new Vector3f(0.4f, 0.4f, 0.4f))
                     .specular(new Vector3f(0.1f, 0.1f, 0.1f))
-                    .constant(1.0f)
-                    .linear(0.025f)
-                    .quadratic(0.0075f)
+                    .constant(0.1f)
+                    .linear(0.075f)
+                    .quadratic(0.0175f)
                     .build();
             pointLights.add(pointLight);
         }
@@ -251,9 +260,9 @@ public class HelloWorld {
                     .ambient(new Vector3f(0.15f, 0.15f, 0.10f))
                     .diffuse(new Vector3f(0.3f, 0.3f, 0.2f))
                     .specular(new Vector3f(0.3f, 0.53f, 0.2f))
-                    .constant(1.0f)
-                    .linear(0.045f)
-                    .quadratic(0.0075f)
+                    .constant(0.1f)
+                    .linear(0.1f)
+                    .quadratic(0.0175f)
                     .cutOff((float) cos(toRadians(13)))
                     .outerCutOff((float) cos(toRadians(20)))
                     .build();
@@ -275,6 +284,30 @@ public class HelloWorld {
             cameraMovementType = FPV;
         } else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS) {
             cameraMovementType = FREE;
+        } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS &&
+                glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+            // fog up
+            fogFactor += deltaTime * 0.5f;
+            fogFactor = fogFactor > 1 ? 1 : fogFactor;
+        } else if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS &&
+                glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+            // fog down
+            fogFactor -= deltaTime * 0.5f;
+            fogFactor = fogFactor < 0 ? 0 : fogFactor;
+        }else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS &&
+                glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+            // light up
+            float lightIntensity = directionalLightColor.x;
+            lightIntensity += deltaTime * 0.5f;
+            lightIntensity = Math.min(lightIntensity, 0.4f);
+            directionalLightColor.set(lightIntensity, lightIntensity, lightIntensity);
+        } else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS &&
+                glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+            // light down
+            float lightIntensity = directionalLightColor.x;
+            lightIntensity -= deltaTime * 0.5f;
+            lightIntensity = Math.max(0, lightIntensity);
+            directionalLightColor.set(lightIntensity, lightIntensity, lightIntensity);
         } else if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
             spotLightRotation += deltaTime * 10f;
             spotLightRotation = spotLightRotation > 30 ? 30 : spotLightRotation;
