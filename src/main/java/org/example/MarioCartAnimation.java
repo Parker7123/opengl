@@ -8,6 +8,7 @@ import org.example.lights.SpotLight;
 import org.example.models.CameraMovementType;
 import org.example.models.Model;
 import org.example.models.ShaderType;
+import org.example.shader.Shader;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -30,7 +31,7 @@ import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 @SuppressWarnings("DataFlowIssue")
-public class HelloWorld {
+public class MarioCartAnimation {
     static Camera camera = new Camera();
     static float deltaTime = 0.0f;    // Time between current frame and last frame
     static float lastTime = 0.0f; // Time of last frame
@@ -38,15 +39,15 @@ public class HelloWorld {
     static float fogFactor = 0f;
     static Vector3f worldUp = new Vector3f(0, 1, 0);
 
-    private static final String phongVertexShaderSource = HelloWorld.class.getResource("shaders/phong_shader.vert").getFile();
+    private static final String phongVertexShaderSource = MarioCartAnimation.class.getResource("shaders/phong_shader.vert").getFile();
 
-    private static final String phongFragmentShaderSource = HelloWorld.class.getResource("shaders/phong_shader.frag").getFile();
-    private static final String gouraudVertexShaderSource = HelloWorld.class.getResource("shaders/gouraud_shader.vert").getFile();
+    private static final String phongFragmentShaderSource = MarioCartAnimation.class.getResource("shaders/phong_shader.frag").getFile();
+    private static final String gouraudVertexShaderSource = MarioCartAnimation.class.getResource("shaders/gouraud_shader.vert").getFile();
 
-    private static final String gouraudFragmentShaderSource = HelloWorld.class.getResource("shaders/gouraud_shader.frag").getFile();
-    private static final String flatVertexShaderSource = HelloWorld.class.getResource("shaders/flat_shader.vert").getFile();
+    private static final String gouraudFragmentShaderSource = MarioCartAnimation.class.getResource("shaders/gouraud_shader.frag").getFile();
+    private static final String flatVertexShaderSource = MarioCartAnimation.class.getResource("shaders/flat_shader.vert").getFile();
 
-    private static final String flatFragmentShaderSource = HelloWorld.class.getResource("shaders/flat_shader.frag").getFile();
+    private static final String flatFragmentShaderSource = MarioCartAnimation.class.getResource("shaders/flat_shader.frag").getFile();
 
     private static final List<PointLight> pointLights = new ArrayList<>();
     private static final List<SpotLight> spotLights = new ArrayList<>();
@@ -91,11 +92,11 @@ public class HelloWorld {
                 .color(directionalLightColor)
                 .build();
 
-        Model luigi = new Model(HelloWorld.class.getResource("luigi.obj").getPath());
-        Model track = new Model(HelloWorld.class.getResource("crircuito.obj").getPath());
-        Model car = new Model(HelloWorld.class.getResource("RacingCar.obj").getPath());
+        Model luigi = new Model(MarioCartAnimation.class.getResource("luigi.obj").getPath());
+        Model track = new Model(MarioCartAnimation.class.getResource("crircuito.obj").getPath());
+        Model car = new Model(MarioCartAnimation.class.getResource("RacingCar.obj").getPath());
 
-        List<Vector3f[]> positions = Files.readAllLines(new File(HelloWorld.class.getResource("position.txt").getPath()).toPath()).stream()
+        List<Vector3f[]> positions = Files.readAllLines(new File(MarioCartAnimation.class.getResource("position.txt").getPath()).toPath()).stream()
                 .map(line -> line.split(" "))
                 .map(l-> new Vector3f[] {
                         new Vector3f(Float.parseFloat(l[0]), Float.parseFloat(l[1]), Float.parseFloat(l[2])),
@@ -218,7 +219,7 @@ public class HelloWorld {
     }
 
     private static void setupLights() {
-        Model lamp = new Model(HelloWorld.class.getResource("street_lamp_02.obj").getPath());
+        Model lamp = new Model(MarioCartAnimation.class.getResource("street_lamp_02.obj").getPath());
         DirectionalLight directionalLight = DirectionalLight.builder()
                 .direction(new Vector3f(0, -1f, 0))
                 .ambient(directionalLightColor)

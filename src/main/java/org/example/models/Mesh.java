@@ -1,6 +1,6 @@
 package org.example.models;
 
-import org.example.Shader;
+import org.example.shader.Shader;
 
 import java.util.List;
 
