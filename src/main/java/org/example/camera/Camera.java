@@ -1,4 +1,4 @@
-package org.example;
+package org.example.camera;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;

@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.camera.Camera;
 import org.example.fog.Fog;
 import org.example.lights.DirectionalLight;
 import org.example.lights.PointLight;
@@ -19,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import java.util.stream.IntStream;
 
 import static java.lang.Math.*;
@@ -102,7 +102,7 @@ public class HelloWorld {
                         new Vector3f(Float.parseFloat(l[3]), Float.parseFloat(l[4]), Float.parseFloat(l[5]))
                 })
                 .toList();
-        int frame = 0;
+        float frame = 0;
         int framesInSecond = 0;
         float prevFullSecondTime = 0;
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -110,7 +110,7 @@ public class HelloWorld {
 
         while (!glfwWindowShouldClose(window)) {
             // frames
-            frame++;
+            frame+= deltaTime * 300;
             framesInSecond ++;
             float currTime = (float) glfwGetTime();
             deltaTime = currTime - lastTime;
@@ -120,11 +120,10 @@ public class HelloWorld {
                 framesInSecond = 0;
                 prevFullSecondTime = currTime;
             }
-
             // carPos
-            var tFront = positions.get(frame % positions.size())[1];
+            var tFront = positions.get((int)frame % positions.size())[1];
             var nextCarFront = new Vector2f(tFront.x, tFront.z).normalize();
-            var carPos = positions.get(frame % positions.size())[0];
+            var carPos = positions.get((int)frame % positions.size())[0];
             var carPosGround = new Vector3f(carPos.x, 0.048f, carPos.z);
 
             // camera movement
