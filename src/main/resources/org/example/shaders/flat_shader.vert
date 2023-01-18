@@ -74,7 +74,7 @@ void main() {
     vec4 eyeSpacePosition = mvMatrix * vec4(aPos, 1.0f);
     gl_Position = projection * eyeSpacePosition;
     // move to cpu since inversions are costly
-    vec3 normal = mat3(transpose(inverse(model))) * aNormal;
+    vec3 normal = mat3(model) * aNormal;
     // fixes wrongly generated normals on plain ground
     if (normal == vec3(0.0f, -1.0f, 0.0f)) {
         normal = vec3(0, 1, 0);
