@@ -5,12 +5,12 @@ import org.example.lights.PointLight;
 import org.example.lights.SpotLight;
 import org.example.models.CameraMovementType;
 import org.example.models.Model;
+import org.example.models.ShaderType;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL33;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.File;
@@ -22,10 +22,12 @@ import java.util.stream.IntStream;
 
 import static java.lang.Math.*;
 import static org.example.models.CameraMovementType.*;
+import static org.example.models.ShaderType.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+@SuppressWarnings("DataFlowIssue")
 public class HelloWorld {
     static Camera camera = new Camera();
     static float deltaTime = 0.0f;    // Time between current frame and last frame
@@ -33,17 +35,21 @@ public class HelloWorld {
     static float spotLightRotation = -5f;
     static Vector3f worldUp = new Vector3f(0, 1, 0);
 
-    private static final String vertexShaderSource = HelloWorld.class.getResource("shader.vert").getFile();
+    private static final String phongVertexShaderSource = HelloWorld.class.getResource("shaders/phong_shader.vert").getFile();
 
-    private static final String fragmentShaderSource = HelloWorld.class.getResource("shader.frag").getFile();
+    private static final String phongFragmentShaderSource = HelloWorld.class.getResource("shaders/phong_shader.frag").getFile();
+    private static final String gouraudVertexShaderSource = HelloWorld.class.getResource("shaders/gouraud_shader.vert").getFile();
 
-    private static final String lightVertexShaderSource = HelloWorld.class.getResource("light_shader.vert").getFile();
+    private static final String gouraudFragmentShaderSource = HelloWorld.class.getResource("shaders/gouraud_shader.frag").getFile();
+    private static final String flatVertexShaderSource = HelloWorld.class.getResource("shaders/flat_shader.vert").getFile();
 
-    private static final String lightFragmentShaderSource = HelloWorld.class.getResource("light_shader.frag").getFile();
+    private static final String flatFragmentShaderSource = HelloWorld.class.getResource("shaders/flat_shader.frag").getFile();
 
     private static final List<PointLight> pointLights = new ArrayList<>();
     private static final List<SpotLight> spotLights = new ArrayList<>();
+    private static final List<DirectionalLight> directionalLights = new ArrayList<>();
     private static CameraMovementType cameraMovementType = FOLLOW;
+    private static ShaderType shaderType = PHONG;
 
     public static void main(String[] args) throws IOException {
 
@@ -73,9 +79,10 @@ public class HelloWorld {
         glEnable(GL_MULTISAMPLE);
 
         // initial shader and light configuration
-        Shader lightShader = new Shader(lightVertexShaderSource, lightFragmentShaderSource);
-        Shader shader = new Shader(vertexShaderSource, fragmentShaderSource);
-        setupLights(shader);
+        Shader phongShader = new Shader(phongVertexShaderSource, phongFragmentShaderSource);
+        Shader gouraudShader = new Shader(gouraudVertexShaderSource, gouraudFragmentShaderSource);
+        Shader flatShader = new Shader(flatVertexShaderSource, flatFragmentShaderSource);
+        setupLights();
 
         Model luigi = new Model(HelloWorld.class.getResource("luigi.obj").getPath());
         Model track = new Model(HelloWorld.class.getResource("crircuito.obj").getPath());
@@ -95,8 +102,6 @@ public class HelloWorld {
         var carFront = new Vector2f(0f, -1f).normalize();
 
         while (!glfwWindowShouldClose(window)) {
-//            System.out.println(camera.getCameraPos());
-
             // frames
             frame++;
             framesInSecond ++;
@@ -125,7 +130,6 @@ public class HelloWorld {
                         .add(new Vector3f(-nextCarFront.x * 3, 0f , -nextCarFront.y * 3))
                         .add(carPosGround));
                 camera.setCameraFront(new Vector3f(nextCarFront.x, 0f , nextCarFront.y));
-//                camera.processInput(window, deltaTime);
             } else if (cameraMovementType == FREE) {
                 camera.processInput(window, deltaTime);
                 camera.startProcessingMouseMovement(window);
@@ -133,12 +137,17 @@ public class HelloWorld {
 
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            var view = camera.getViewMatrix();
-            var projection = new Matrix4f()
+            final var view = camera.getViewMatrix();
+            final var projection = new Matrix4f()
                     .perspective((float) toRadians(camera.getFov()), 1920.0f / 1080.0f, 0.1f, 100.0f);
 
-            // triangles
-            shader.use();
+            // choosing a shader
+            Shader currentShader = switch (shaderType) {
+                case GOURAUD -> gouraudShader;
+                case FLAT -> flatShader;
+                default -> phongShader;
+            };
+            currentShader.use();
 
             try (MemoryStack stack = MemoryStack.stackPush()) {
                 // spotlights
@@ -162,37 +171,37 @@ public class HelloWorld {
                 rightLight.setDirection(spotLightDirection);
 
                 // light uniforms
-                pointLights.forEach(light -> light.applyUniforms(shader));
-                spotLights.forEach(light -> light.applyUniforms(shader));
+                pointLights.forEach(light -> light.applyUniforms(currentShader));
+                spotLights.forEach(light -> light.applyUniforms(currentShader));
+                directionalLights.forEach(light -> light.applyUniforms(currentShader));
 
-                // draw triangles
                 // track
                 var model = new Matrix4f()
                         .rotate((float) toRadians(0f), new Vector3f(1f, 0f, 0f));
-                shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
-                shader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
-                shader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
-                shader.setVec3("viewPos", camera.getCameraPos());
-                track.draw(shader);
+                currentShader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
+                currentShader.setMatrix4fv("view", view.get(stack.mallocFloat(16)));
+                currentShader.setMatrix4fv("projection", projection.get(stack.mallocFloat(16)));
+                currentShader.setVec3("viewPos", camera.getCameraPos());
+                track.draw(currentShader);
 
                 // luigi
                 model = new Matrix4f()
                         .translate(new Vector3f((float) cos(glfwGetTime()) - 3, 0.1f, (float) sin(glfwGetTime()) + 3))
                         .rotate((float) glfwGetTime(), new Vector3f(0f, 1f, 0f))
                         .scale(0.01f);
-                shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
-                luigi.draw(shader);
+                currentShader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
+                luigi.draw(currentShader);
 
                 // car
                 model = new Matrix4f()
                         .translate(carPosGround)
                         .rotate(new Vector2f(nextCarFront).angle(carFront), new Vector3f(0f, 1f, 0f))
                         .scale(0.002f);
-                shader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
-                car.draw(shader);
+                currentShader.setMatrix4fv("model", model.get(stack.mallocFloat(16)));
+                car.draw(currentShader);
 
                 // lamps
-                pointLights.forEach(pointLight -> pointLight.draw(shader));
+                pointLights.forEach(pointLight -> pointLight.draw(currentShader));
             }
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -200,8 +209,7 @@ public class HelloWorld {
         glfwTerminate();
     }
 
-    private static void setupLights(Shader shader) {
-        shader.use();
+    private static void setupLights() {
         Model lamp = new Model(HelloWorld.class.getResource("street_lamp_02.obj").getPath());
         DirectionalLight directionalLight = DirectionalLight.builder()
                 .direction(new Vector3f(0, -1f, 0))
@@ -209,8 +217,7 @@ public class HelloWorld {
                 .diffuse(new Vector3f(0.1f, 0.1f, 0.1f))
                 .specular(new Vector3f(0.1f, 0.1f, 0.1f))
                 .build();
-
-        directionalLight.applyUniforms(shader);
+        directionalLights.add(directionalLight);
         //  PointLights
         Vector3f[] pointLightPositions = {
                 new Vector3f(new Vector3f(-2, 0, -5)),
@@ -274,6 +281,12 @@ public class HelloWorld {
         } else if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
             spotLightRotation -= deltaTime * 10f;
             spotLightRotation = spotLightRotation < -30 ? -30 : spotLightRotation;
+        }  else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+            shaderType = PHONG;
+        }  else if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS) {
+            shaderType = GOURAUD;
+        }  else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+            shaderType = FLAT;
         }
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);

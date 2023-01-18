@@ -1,9 +1,10 @@
 package org.example.lights;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.example.Shader;
-import org.example.models.Model;
 import org.joml.Vector3f;
 /***
  *
