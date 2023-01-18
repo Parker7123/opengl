@@ -2,7 +2,7 @@ package org.example.lights;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.example.Shader;
+import org.example.shader.Shader;
 import org.joml.Vector3f;
 
 @Getter

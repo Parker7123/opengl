@@ -3,7 +3,7 @@ package org.example.lights;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.example.Shader;
+import org.example.shader.Shader;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 

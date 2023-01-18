@@ -1,4 +1,4 @@
-package org.example;
+package org.example.shader;
 
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
