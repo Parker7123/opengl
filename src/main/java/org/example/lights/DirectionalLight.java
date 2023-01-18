@@ -18,11 +18,6 @@ public class DirectionalLight extends AbstractLight{
     }
 
     @Override
-    public void draw(Shader shader) {
-
-    }
-
-    @Override
     public String name() {
         return "dirLight";
     }

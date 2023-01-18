@@ -3,6 +3,7 @@ package org.example.lights;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.example.Shader;
+import org.example.models.Model;
 import org.joml.Vector3f;
 /***
  *
@@ -20,8 +21,6 @@ public abstract class AbstractLight {
         shader.setVec3(name() + ".diffuse", diffuse);
         shader.setVec3(name() + ".specular", specular);
     }
-
-    public abstract void draw(Shader shader);
 
     public abstract String name();
 }

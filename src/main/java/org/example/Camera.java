@@ -2,6 +2,7 @@ package org.example;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFWCursorPosCallback;
 
 import static java.lang.Math.*;
 import static java.lang.Math.toRadians;
@@ -21,6 +22,7 @@ public class Camera {
     private float movementSpeed = 2.5f;
     private float mouseSensitivity = 0.1f;
     private boolean firstMouse = true;
+    private GLFWCursorPosCallback mouseCallback;
     public Camera(Vector3f cameraPos, Vector3f cameraUp, Vector3f cameraFront,
                   float lastX, float lastY, float yaw, float pitch, float fov, float movementSpeed, float mouseSensitivity) {
         this.cameraPos = cameraPos;
@@ -75,7 +77,8 @@ public class Camera {
     }
 
     public void startProcessingMouseMovement(long window) {
-        glfwSetCursorPosCallback(window, (window1, xpos, ypos) -> {
+        if (mouseCallback != null) return;
+        mouseCallback = glfwSetCursorPosCallback(window, (window1, xpos, ypos) -> {
             if (firstMouse)
             {
                 lastX = (float) xpos;
@@ -120,4 +123,13 @@ public class Camera {
                 fov = 45.0f;
         });
     }
+
+    public void stopProcessingMouseMovement(long window) {
+        if (mouseCallback != null) {
+            mouseCallback.close();
+            glfwSetCursorPosCallback(window, null);
+            mouseCallback = null;
+        }
+    }
+
 }

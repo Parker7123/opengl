@@ -23,6 +23,11 @@ public class SpotLight extends AbstractLightWithPosition {
     }
 
     @Override
+    public void draw(Shader shader) {
+
+    }
+
+    @Override
     public String name() {
         return "spotLights[" + index + "]";
     }

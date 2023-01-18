@@ -44,6 +44,7 @@ public class Mesh {
     public void draw(Shader shader) {
         int diffuseNr = 1;
         int specularNr = 1;
+        shader.use();
         for (int i = 0; i < textures.size(); i++) {
             glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
             // retrieve texture number (the N in diffuse_textureN)
@@ -55,13 +56,13 @@ public class Mesh {
                 number = String.valueOf(specularNr++);
             shader.setInt("material." + name + number, i);
             glBindTexture(GL_TEXTURE_2D, textures.get(i).getId());
+            shader.setInt("useTexture", 1);
         }
-        glActiveTexture(GL_TEXTURE0);
         // draw mesh
-        shader.use();
         shader.setVec3("material.diffuseColor", material.getDiffuse());
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        shader.setInt("useTexture", 0);
         glBindVertexArray(0);
     }
 

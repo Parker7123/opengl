@@ -29,7 +29,7 @@ struct PointLight {
     vec3 diffuse;
     vec3 specular;
 };
-#define NR_POINT_LIGHTS 1
+#define NR_POINT_LIGHTS 5
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
 struct SpotLight {
@@ -46,24 +46,8 @@ struct SpotLight {
     vec3 diffuse;
     vec3 specular;
 };
-#define NR_SPOT_LIGHTS 1
+#define NR_SPOT_LIGHTS 2
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
-
-//struct Light {
-//    vec3  position;
-//    vec3  direction;
-//    float cutOff;
-//    float outerCutOff;
-//
-//    vec3 ambient;
-//    vec3 diffuse;
-//    vec3 specular;
-//
-//    float constant;
-//    float linear;
-//    float quadratic;
-//};
-
 uniform Material material;
 uniform vec3 viewPos;
 uniform int useTexture;

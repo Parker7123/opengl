@@ -1,5 +1,5 @@
 package org.example.models;
 
 public enum CameraMovementType {
-    FOLLOW, FPV, STATIC
+    FOLLOW, FPV, STATIC, FREE
 }
