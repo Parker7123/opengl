@@ -1,5 +1,11 @@
 plugins {
     id 'java'
+    id 'application'
+    id "io.freefair.lombok" version "6.6.1"
+}
+
+application {
+    mainClass = 'org.example.MarioCartAnimation'
 }
 
 project.ext.lwjglVersion = "3.3.1"

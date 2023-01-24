@@ -1,14 +1,21 @@
 package org.example.models;
 
-import org.example.Shader;
+import org.example.MarioCartAnimation;
+import org.example.shader.Shader;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.assimp.*;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL30.glGenerateMipmap;
+import static org.lwjgl.stb.STBImage.*;
 
 public class Model {
 
@@ -21,7 +28,8 @@ public class Model {
     private void loadModel(String path) {
         path = new File(path).toPath().toString();
         System.out.println(path);
-        AIScene scene = Assimp.aiImportFile(path, Assimp.aiProcess_Triangulate | Assimp.aiProcess_FlipUVs);
+        AIScene scene = Assimp.aiImportFile(path, Assimp.aiProcess_Triangulate | Assimp.aiProcess_FlipUVs |
+                Assimp.aiProcess_FixInfacingNormals | Assimp.aiProcess_ForceGenNormals);
         if (scene == null || (scene.mFlags() & Assimp.AI_SCENE_FLAGS_INCOMPLETE) != 0 || scene.mRootNode() == null) {
             System.out.println("error loading model " + path);
             System.out.println(Assimp.aiGetErrorString());
@@ -91,6 +99,9 @@ public class Model {
                 return new Mesh(vertices, indices, textures, Material.DEFAULT_MATERIAL);
             }
             List<Texture> diffuseMaps = loadMaterialTextures(material, Assimp.aiTextureType_DIFFUSE, "texture_diffuse");
+            List<Texture> specularMaps = loadMaterialTextures(material, Assimp.aiTextureType_UNKNOWN, "texture_specular");
+            textures.addAll(diffuseMaps);
+            textures.addAll(specularMaps);
             return new Mesh(vertices, indices, textures, loadMaterial(material));
         }
         return new Mesh(vertices, indices, textures, Material.DEFAULT_MATERIAL);
@@ -115,14 +126,38 @@ public class Model {
                     null, null, null);
             int textureId = loadTextureFromFile(aiString.dataString(), directory);
             Texture texture = new Texture(textureId, typeName);
+            textures.add(texture);
         }
-        return null;
+        return textures;
     }
 
     private int loadTextureFromFile(String s, String directory) {
-        System.out.println(s);
-        System.out.println(directory);
-        return 0;
+        String fileName = s.substring(s.indexOf('/') + 1, s.length());
+        String path = "textures/" + fileName;
+        return loadTexture(path);
+    }
+
+    private static int loadTexture(String path) {
+        int[] w = new int[1];
+        int[] h = new int[1];
+        int[] components = new int[1];
+//        stbi_set_flip_vertically_on_load(true);
+        System.out.println("loading " + path);
+        String imagePath = new File(MarioCartAnimation.class.getResource(path).getPath()).toString();
+        ByteBuffer image = stbi_load(imagePath, w, h, components, 0);
+        int format = GL_RGB;
+        if(components[0] == 4) format = GL_RGBA;
+        if(components[0] == 1) format = GL_BACK;
+        int texture = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w[0], h[0], 0, format, GL_UNSIGNED_BYTE, image);
+        glGenerateMipmap(GL_TEXTURE_2D);
+        stbi_image_free(image);
+        return texture;
     }
 
     public void draw(Shader shader) {

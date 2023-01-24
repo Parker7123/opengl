@@ -1,6 +1,6 @@
 package org.example.models;
 
-import org.example.Shader;
+import org.example.shader.Shader;
 
 import java.util.List;
 
@@ -44,24 +44,25 @@ public class Mesh {
     public void draw(Shader shader) {
         int diffuseNr = 1;
         int specularNr = 1;
-//        for (int i = 0; i < textures.size(); i++) {
-//            glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-//            // retrieve texture number (the N in diffuse_textureN)
-//            String number = "";
-//            String name = textures.get(i).getType();
-//            if (name.equals("texture_diffuse"))
-//                number = String.valueOf(diffuseNr++);
-//            else if (name.equals("texture_specular"))
-//                number = String.valueOf(specularNr++);
-//            shader.setInt("material." + name + number, i);
-//            glBindTexture(GL_TEXTURE_2D, textures.get(i).getId());
-//        }
-//        glActiveTexture(GL_TEXTURE0);
-        // draw mesh
         shader.use();
+        for (int i = 0; i < textures.size(); i++) {
+            glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
+            // retrieve texture number (the N in diffuse_textureN)
+            String number = "";
+            String name = textures.get(i).getType();
+            if (name.equals("texture_diffuse"))
+                number = String.valueOf(diffuseNr++);
+            else if (name.equals("texture_specular"))
+                number = String.valueOf(specularNr++);
+            shader.setInt("material." + name + number, i);
+            glBindTexture(GL_TEXTURE_2D, textures.get(i).getId());
+            shader.setInt("useTexture", 1);
+        }
+        // draw mesh
         shader.setVec3("material.diffuseColor", material.getDiffuse());
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        shader.setInt("useTexture", 0);
         glBindVertexArray(0);
     }
 
@@ -78,7 +79,7 @@ public class Mesh {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesLoader.loadToIntBuffer(), GL_STATIC_DRAW);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, false, Vertex.NUMBER_OF_FLOATS * 4, 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, true, Vertex.NUMBER_OF_FLOATS * 4, 0);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, false, Vertex.NUMBER_OF_FLOATS * 4, 3 * 4);
         glEnableVertexAttribArray(1);
